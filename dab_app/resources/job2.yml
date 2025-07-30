@@ -1,0 +1,38 @@
+# ML Training Job
+resources:
+  jobs:
+    ml_training_job:
+      name: ml_training_job
+
+      trigger:
+        # Run this job weekly on Sundays
+        periodic:
+          interval: 1
+          unit: WEEKS
+
+      #email_notifications:
+      #  on_failure:
+      #    - your_email@example.com
+
+      tasks:
+
+        - task_key: ml_training_task
+          environment_key: default
+          python_wheel_task:
+            package_name: dab_app
+            entry_point: job2
+            named_parameters:
+              env: ${bundle.target}
+              model_type: "xgboost"
+              max_epochs: "100"
+
+      # A list of task execution environment specifications that can be referenced by tasks of this job.
+      environments:
+        - environment_key: default
+
+          # Full documentation of this spec can be found at:
+          # https://docs.databricks.com/api/workspace/jobs/create#environments-spec
+          spec:
+            client: "2"
+            dependencies:
+              - ../dist/*.whl
